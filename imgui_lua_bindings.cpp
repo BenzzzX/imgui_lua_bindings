@@ -161,6 +161,18 @@ static int impl_##name(lua_State *L) { \
     stackval++; \
   }
 
+#define FLOAT_ARRAY_ARG(name, size) \
+  float name[size]; \
+  for(int i=0;i<size;++i) { \
+  name[i]  = luaL_checknumber(L, arg++); \
+  }
+
+#define END_FLOAT_ARRAY(name, size) \
+  for(int i=0;i<size;++i) { { \
+    lua_pushnumber(L, name[i]); \
+    stackval++; \
+  }
+
 #define OPTIONAL_INT_ARG(name, otherwise)\
   int name = otherwise; \
   if (arg <= max_args) { \
@@ -186,6 +198,18 @@ static int impl_##name(lua_State *L) { \
 #define END_INT_POINTER(name) \
   if (name != NULL) { \
     lua_pushnumber(L, i_##name##_value); \
+    stackval++; \
+  }
+
+  #define INT_ARRAY_ARG(name, size) \
+  int name[size]; \
+  for(int i=0;i<size;++i) { \
+  name[i]  = (int)luaL_checkinteger(L, arg++); \
+  }
+
+#define END_INT_ARRAY(name, size) \
+  for(int i=0;i<size;++i) { { \
+    lua_pushnumber(L, name[i]); \
     stackval++; \
   }
 

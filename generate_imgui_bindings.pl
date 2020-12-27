@@ -70,7 +70,7 @@ sub generateNamespaceImgui {
 sub generateDrawListFunctions {
   my ($imguiCodeBlock) = @_;
 
-  my $lineCaptureRegex = qr" *(IMGUI_API|inline) *((const char\*)|([^ ]+)) *([^\(]+)\(([^\;]*)\);";
+  my $lineCaptureRegex = qr" *(IMGUI_API|inline) *((const char\*)|([^ ]+)) *([^\(]+)\(([^\;]*?)\)\s*(;|\{|const)";
   my $doEndStackOptions = 0;
   my $terminator = 0;
   my $callPrefix = "DRAW_LIST_";
@@ -209,6 +209,10 @@ sub generateImguiGeneric {
         $callMacro = "${callPrefix}CALL_FUNCTION";
         push(@funcArgs, "unsigned int");
         push(@after, "PUSH_NUMBER(ret)");
+      } elsif ($retType =~ /^int$/) {
+        $callMacro = "${callPrefix}CALL_FUNCTION";
+        push(@funcArgs, "int");
+        push(@after, "PUSH_NUMBER(ret)");
       } else {
         print "// Unsupported return type $retType\n";
         $shouldPrint = 0;
@@ -224,7 +228,14 @@ sub generateImguiGeneric {
           }
           push(@funcArgs, $name);
           push(@after, "END_BOOL_POINTER($name)");
-        # float * x
+        # float  x[n]
+        } elsif ($args[$i] =~ m/^ *float\s*([^ =]*)\[(\d)\]$/) {
+          my $name = $1;
+          my $size = $2;
+          push(@before, "FLOAT_ARRAY_ARG($name, $size)");
+          push(@funcArgs, $name);
+          push(@after, "END_FLOAT_ARRAY($name, $size)");
+         # float * x
         } elsif ($args[$i] =~ m/^ *float *\* *([^ =\[]*)$/) {
           my $name = $1;
           push(@before, "FLOAT_POINTER_ARG($name)");
@@ -249,7 +260,7 @@ sub generateImguiGeneric {
           }
           push(@funcArgs, $name);
         #const ImVec2& with default or not
-        } elsif ($args[$i] =~ m/^ *const ImVec2& ([^ ]*) *(= * ImVec2 [^ ]* [^ ]*|) *$/) {
+        } elsif ($args[$i] =~ m/^ *const ImVec2& ([^ ]*) *(=\s*ImVec2\s*[^ ]*\s*[^ ]*|)*$/) {
           my $name = $1;
           if ($2 =~ m/^= * ImVec2 ([^ ]*) ([^ ]*)$/) {
             push(@before, "OPTIONAL_IM_VEC_2_ARG($name, $1, $2)");
@@ -273,7 +284,7 @@ sub generateImguiGeneric {
           push(@funcArgs, $name);
           # one of the various enums
           # we are handling these as ints
-        } elsif ($args[$i] =~ m/^ *(ImGuiWindowFlags|ImGuiCol|ImGuiStyleVar|ImGuiKey|ImGuiAlign|ImGuiColorEditMode|ImGuiMouseCursor|ImGuiSetCond|ImGuiInputTextFlags|ImGuiSelectableFlags) ([^ ]*)( = 0|) *$/) {
+        } elsif ($args[$i] =~ m/^ *(ImGuiTabBarFlags|ImGuiTabItemFlags|ImGuiWindowFlags|ImGuiCol|ImGuiStyleVar|ImGuiKey|ImGuiAlign|ImGuiColorEditMode|ImGuiMouseCursor|ImGuiSetCond|ImGuiInputTextFlags|ImGuiSelectableFlags|ImDrawCornerFlags|ImGuiMouseButton|ImGuiTreeNodeFlags|ImGuiCond|ImGuiSliderFlags|ImGuiColorEditFlags) ([^ ]*)( = 0|) *$/) {
          #These are ints
          my $name = $2;
           if ($3 =~ m/^ = 0$/) {
@@ -322,6 +333,13 @@ sub generateImguiGeneric {
           push(@before, "INT_POINTER_ARG($name)");
           push(@funcArgs, $name);
           push(@after, "END_INT_POINTER($name)");
+        # int x[n]
+        } elsif ($args[$i] =~ m/^ *int\s*([^ =]*)\[(\d)\]$/) {
+          my $name = $1;
+          my $size = $2;
+          push(@before, "INT_ARRAY_ARG($name, $size)");
+          push(@funcArgs, $name);
+          push(@after, "END_INT_ARRAY($name, $size)");
         # unsigned int * x
         } elsif ($args[$i] =~ m/^ *unsigned +int *\* *([^ =\[]*)$/) {
           my $name = $1;

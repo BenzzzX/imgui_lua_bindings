@@ -15,7 +15,7 @@ require "./parse_blocks.pl";
 sub generateNamespaceImgui {
   my ($imguiCodeBlock) = @_;
 
-  my $lineCaptureRegex = qr" *(IMGUI_API) *((const char\*)|([^ ]+)) *([^\(]+)\(([^\;]*)\);";
+  my $lineCaptureRegex = qr" *(IMGUI_API|inline) *((const char\*)|([^ ]+)) *([^\(]+)\(([^\;]*?)\)\s*(;|\{|const|IM_FMTARGS)";
   my $doEndStackOptions = 1;
   my $terminator = "} \/\/ namespace ImGui";
   my $callPrefix = "";
@@ -70,7 +70,7 @@ sub generateNamespaceImgui {
 sub generateDrawListFunctions {
   my ($imguiCodeBlock) = @_;
 
-  my $lineCaptureRegex = qr" *(IMGUI_API|inline) *((const char\*)|([^ ]+)) *([^\(]+)\(([^\;]*?)\)\s*(;|\{|const)";
+  my $lineCaptureRegex = qr" *(IMGUI_API|inline) *((const char\*)|([^ ]+)) *([^\(]+)\(([^\;]*?)\)\s*(;|\{|const|IM_FMTARGS)";
   my $doEndStackOptions = 0;
   my $terminator = 0;
   my $callPrefix = "DRAW_LIST_";
@@ -284,7 +284,7 @@ sub generateImguiGeneric {
           push(@funcArgs, $name);
           # one of the various enums
           # we are handling these as ints
-        } elsif ($args[$i] =~ m/^ *(ImGuiTabBarFlags|ImGuiTabItemFlags|ImGuiWindowFlags|ImGuiCol|ImGuiStyleVar|ImGuiKey|ImGuiAlign|ImGuiColorEditMode|ImGuiMouseCursor|ImGuiSetCond|ImGuiInputTextFlags|ImGuiSelectableFlags|ImDrawCornerFlags|ImGuiMouseButton|ImGuiTreeNodeFlags|ImGuiCond|ImGuiSliderFlags|ImGuiColorEditFlags) ([^ ]*)( = 0|) *$/) {
+        } elsif ($args[$i] =~ m/^ *(ImGuiInputTextFlags|ImGuiTabBarFlags|ImGuiTabItemFlags|ImGuiWindowFlags|ImGuiCol|ImGuiStyleVar|ImGuiKey|ImGuiAlign|ImGuiColorEditMode|ImGuiMouseCursor|ImGuiSetCond|ImGuiInputTextFlags|ImGuiSelectableFlags|ImDrawCornerFlags|ImGuiMouseButton|ImGuiTreeNodeFlags|ImGuiCond|ImGuiSliderFlags|ImGuiColorEditFlags) ([^ ]*)( = 0|) *$/) {
          #These are ints
          my $name = $2;
           if ($3 =~ m/^ = 0$/) {

@@ -1,25 +1,19 @@
+#ifdef ENABLE_LUA_BINDING
 #include <stdio.h>
 #include <imgui.h>
 #include <deque>
-
-extern "C" {
-  #include "lua.h"
-  #include "lualib.h"
-  #include "lauxlib.h"
-}
-
-
+#include "imgui_lua_binding.h"
+#include "lua.h"
+#include "lualib.h"
+#include "lauxlib.h"
+using namespace slua;
 // THIS IS FOR LUA 5.3 although you can make a few changes for other versions
 
 
 
-// define ENABLE_IM_LUA_END_STACK
+#define ENABLE_IM_LUA_END_STACK
 // to keep track of end and begins and clean up the imgui stack
 // if lua errors
-
-
-// define this global before you call RunString or LoadImGuiBindings
-lua_State* lState;
 
 #ifdef ENABLE_IM_LUA_END_STACK
 // Stack for imgui begin and end
@@ -37,47 +31,6 @@ static void PopEndStack(int type) {
 static void ImEndStack(int type);
 
 #endif
-
-// Example lua run string function
-// returns NULL on success and error string on error
-const char * RunString(const char* szLua) {
-  if (!lState) {
-    fprintf(stderr, "You didn't assign the global lState, either assign that or refactor LoadImguiBindings and RunString\n");
-  }
-
-  int iStatus = luaL_loadstring(lState, szLua);
-  if(iStatus) {
-    return lua_tostring(lState, -1);
-    //fprintf(stderr, "Lua syntax error: %s\n", lua_tostring(lState, -1));
-    //return;
-  }
-#ifdef ENABLE_IM_LUA_END_STACK
-  endStack.clear();
-#endif
-  iStatus = lua_pcall( lState, 0, 0, 0 );
-
-#ifdef ENABLE_IM_LUA_END_STACK
-  bool wasEmpty = endStack.empty();
-  while(!endStack.empty()) {
-    ImEndStack(endStack.back());
-    endStack.pop_back();
-  }
-
-#endif
-  if( iStatus )
-  {
-      return lua_tostring(lState, -1);
-      //fprintf(stderr, "Error: %s\n", lua_tostring( lState, -1 ));
-      //return;
-  }
-#ifdef ENABLE_IM_LUA_END_STACK
-  else if (!wasEmpty) {
-    return "Script didn't clean up imgui stack properly";
-  }
-#endif
-  return NULL;
-}
-
 
 #define IMGUI_FUNCTION_DRAW_LIST(name) \
 static int impl_draw_list_##name(lua_State *L) { \
@@ -168,7 +121,7 @@ static int impl_##name(lua_State *L) { \
   }
 
 #define END_FLOAT_ARRAY(name, size) \
-  for(int i=0;i<size;++i) { { \
+  for(int i=0;i<size;++i) { \
     lua_pushnumber(L, name[i]); \
     stackval++; \
   }
@@ -208,7 +161,7 @@ static int impl_##name(lua_State *L) { \
   }
 
 #define END_INT_ARRAY(name, size) \
-  for(int i=0;i<size;++i) { { \
+  for(int i=0;i<size;++i) { \
     lua_pushnumber(L, name[i]); \
     stackval++; \
   }
@@ -224,25 +177,25 @@ static int impl_##name(lua_State *L) { \
   }
 
 #define BOOL_POINTER_ARG(name) \
-  bool i_##name##_value = lua_toboolean(L, arg++); \
+  bool i_##name##_value = (bool)lua_toboolean(L, arg++); \
   bool* name = &(i_##name##_value);
 
 #define OPTIONAL_BOOL_POINTER_ARG(name) \
   bool i_##name##_value; \
   bool* name = NULL; \
   if (arg <= max_args) { \
-    i_##name##_value = lua_toboolean(L, arg++); \
+    i_##name##_value = (bool)lua_toboolean(L, arg++); \
     name = &(i_##name##_value); \
   }
 
 #define OPTIONAL_BOOL_ARG(name, otherwise) \
-  bool name = otherwise; \
+  bool name = (bool)otherwise; \
   if (arg <= max_args) { \
-    name = lua_toboolean(L, arg++); \
+    name = (bool)lua_toboolean(L, arg++); \
   }
 
 #define BOOL_ARG(name) \
-  bool name = lua_toboolean(L, arg++);
+  bool name = (bool)lua_toboolean(L, arg++);
 
 #define CALL_FUNCTION(name, retType,...) \
   retType ret = ImGui::name(__VA_ARGS__);
@@ -343,6 +296,14 @@ static const struct luaL_Reg imguilib [] = {
 #define NUMBER_ARG(name)
 #undef OPTIONAL_NUMBER_ARG
 #define OPTIONAL_NUMBER_ARG(name, otherwise)
+#undef FLOAT_ARRAY_ARG
+#define FLOAT_ARRAY_ARG(name, size)
+#undef END_FLOAT_ARRAY
+#define END_FLOAT_ARRAY(name, size)
+#undef INT_ARRAY_ARG
+#define INT_ARRAY_ARG(name, size)
+#undef END_INT_ARRAY
+#define END_INT_ARRAY(name, size)
 #undef FLOAT_POINTER_ARG
 #define FLOAT_POINTER_ARG(name)
 #undef END_FLOAT_POINTER
@@ -460,6 +421,14 @@ static void PushImguiEnums(lua_State* lState, const char* tableName) {
 #define FLOAT_POINTER_ARG(name)
 #undef END_FLOAT_POINTER
 #define END_FLOAT_POINTER(name)
+#undef FLOAT_ARRAY_ARG
+#define FLOAT_ARRAY_ARG(name, size)
+#undef END_FLOAT_ARRAY
+#define END_FLOAT_ARRAY(name, size)
+#undef INT_ARRAY_ARG
+#define INT_ARRAY_ARG(name, size)
+#undef END_INT_ARRAY
+#define END_INT_ARRAY(name, size)
 #undef OPTIONAL_INT_ARG
 #define OPTIONAL_INT_ARG(name, otherwise)
 #undef INT_ARG
@@ -521,7 +490,7 @@ static void PushImguiEnums(lua_State* lState, const char* tableName) {
 };
 
 
-void LoadImguiBindings() {
+void LoadImguiBindings(lua_State* lState) {
   if (!lState) {
     fprintf(stderr, "You didn't assign the global lState, either assign that or refactor LoadImguiBindings and RunString\n");
   }
@@ -530,3 +499,4 @@ void LoadImguiBindings() {
   PushImguiEnums(lState, "constant");
   lua_setglobal(lState, "imgui");
 }
+#endif

@@ -604,27 +604,53 @@ OPTIONAL_LABEL_ARG(text_end)
 CALL_FUNCTION_NO_RET(TextUnformatted, text, text_end)
 END_IMGUI_FUNC
 //    IMGUI_API void          Text(const char* fmt, ...)                                      IM_FMTARGS(1); // formatted text
-// Unsupported arg type  ...)                                      IM_FMTARGS(1
+// Variadic functions aren't suppported but here it is anyway
+IMGUI_FUNCTION(Text)
+LABEL_ARG(fmt)
+CALL_FUNCTION_NO_RET(Text, fmt)
+END_IMGUI_FUNC
 //    IMGUI_API void          TextV(const char* fmt, va_list args)                            IM_FMTLIST(1);
 // Unsupported arg type  va_list args)                            IM_FMTLIST(1
 //    IMGUI_API void          TextColored(const ImVec4& col, const char* fmt, ...)            IM_FMTARGS(2); // shortcut for PushStyleColor(ImGuiCol_Text, col); Text(fmt, ...); PopStyleColor();
-// Unsupported arg type  ...)            IM_FMTARGS(2
+// Variadic functions aren't suppported but here it is anyway
+IMGUI_FUNCTION(TextColored)
+IM_VEC_4_ARG(col)
+LABEL_ARG(fmt)
+CALL_FUNCTION_NO_RET(TextColored, col, fmt)
+END_IMGUI_FUNC
 //    IMGUI_API void          TextColoredV(const ImVec4& col, const char* fmt, va_list args)  IM_FMTLIST(2);
 // Unsupported arg type  va_list args)  IM_FMTLIST(2
 //    IMGUI_API void          TextDisabled(const char* fmt, ...)                              IM_FMTARGS(1); // shortcut for PushStyleColor(ImGuiCol_Text, style.Colors[ImGuiCol_TextDisabled]); Text(fmt, ...); PopStyleColor();
-// Unsupported arg type  ...)                              IM_FMTARGS(1
+// Variadic functions aren't suppported but here it is anyway
+IMGUI_FUNCTION(TextDisabled)
+LABEL_ARG(fmt)
+CALL_FUNCTION_NO_RET(TextDisabled, fmt)
+END_IMGUI_FUNC
 //    IMGUI_API void          TextDisabledV(const char* fmt, va_list args)                    IM_FMTLIST(1);
 // Unsupported arg type  va_list args)                    IM_FMTLIST(1
 //    IMGUI_API void          TextWrapped(const char* fmt, ...)                               IM_FMTARGS(1); // shortcut for PushTextWrapPos(0.0f); Text(fmt, ...); PopTextWrapPos();. Note that this won't work on an auto-resizing window if there's no other widgets to extend the window width, yoy may need to set a size using SetNextWindowSize().
-// Unsupported arg type  ...)                               IM_FMTARGS(1
+// Variadic functions aren't suppported but here it is anyway
+IMGUI_FUNCTION(TextWrapped)
+LABEL_ARG(fmt)
+CALL_FUNCTION_NO_RET(TextWrapped, fmt)
+END_IMGUI_FUNC
 //    IMGUI_API void          TextWrappedV(const char* fmt, va_list args)                     IM_FMTLIST(1);
 // Unsupported arg type  va_list args)                     IM_FMTLIST(1
 //    IMGUI_API void          LabelText(const char* label, const char* fmt, ...)              IM_FMTARGS(2); // display text+label aligned the same way as value+label widgets
-// Unsupported arg type  ...)              IM_FMTARGS(2
+// Variadic functions aren't suppported but here it is anyway
+IMGUI_FUNCTION(LabelText)
+LABEL_ARG(label)
+LABEL_ARG(fmt)
+CALL_FUNCTION_NO_RET(LabelText, label, fmt)
+END_IMGUI_FUNC
 //    IMGUI_API void          LabelTextV(const char* label, const char* fmt, va_list args)    IM_FMTLIST(2);
 // Unsupported arg type  va_list args)    IM_FMTLIST(2
 //    IMGUI_API void          BulletText(const char* fmt, ...)                                IM_FMTARGS(1); // shortcut for Bullet()+Text()
-// Unsupported arg type  ...)                                IM_FMTARGS(1
+// Variadic functions aren't suppported but here it is anyway
+IMGUI_FUNCTION(BulletText)
+LABEL_ARG(fmt)
+CALL_FUNCTION_NO_RET(BulletText, fmt)
+END_IMGUI_FUNC
 //    IMGUI_API void          BulletTextV(const char* fmt, va_list args)                      IM_FMTLIST(1);
 // Unsupported arg type  va_list args)                      IM_FMTLIST(1
 //    IMGUI_API bool          Button(const char* label, const ImVec2& size = ImVec2 0  0);   // button
@@ -1190,10 +1216,17 @@ IF_RET_ADD_END_STACK(6)
 PUSH_BOOL(ret)
 END_IMGUI_FUNC
 //    IMGUI_API bool          TreeNode(const char* str_id, const char* fmt, ...) IM_FMTARGS(2);   // helper variation to easily decorelate the id from the displayed string. Read the FAQ about why and how to use ID. to align arbitrary text at the same level as a TreeNode() you can use Bullet().
-// Unsupported arg type  ...) IM_FMTARGS(2
+// Variadic functions aren't suppported but here it is anyway
+IMGUI_FUNCTION(TreeNode_3)
+LABEL_ARG(str_id)
+LABEL_ARG(fmt)
+CALL_FUNCTION(TreeNode, bool, str_id, fmt)
+IF_RET_ADD_END_STACK(6)
+PUSH_BOOL(ret)
+END_IMGUI_FUNC
 //    IMGUI_API bool          TreeNode(const void* ptr_id, const char* fmt, ...) IM_FMTARGS(2);   // "
 // Unsupported arg type const void* ptr_id
-// Unsupported arg type  ...) IM_FMTARGS(2
+// Variadic functions aren't suppported but here it is anyway
 //    IMGUI_API bool          TreeNodeV(const char* str_id, const char* fmt, va_list args) IM_FMTLIST(2);
 // Unsupported arg type  va_list args) IM_FMTLIST(2
 //    IMGUI_API bool          TreeNodeV(const void* ptr_id, const char* fmt, va_list args) IM_FMTLIST(2);
@@ -1207,10 +1240,17 @@ CALL_FUNCTION(TreeNodeEx, bool, label, flags)
 PUSH_BOOL(ret)
 END_IMGUI_FUNC
 //    IMGUI_API bool          TreeNodeEx(const char* str_id, ImGuiTreeNodeFlags flags, const char* fmt, ...) IM_FMTARGS(3);
-// Unsupported arg type  ...) IM_FMTARGS(3
+// Variadic functions aren't suppported but here it is anyway
+IMGUI_FUNCTION(TreeNodeEx_4)
+LABEL_ARG(str_id)
+INT_ARG(flags)
+LABEL_ARG(fmt)
+CALL_FUNCTION(TreeNodeEx, bool, str_id, flags, fmt)
+PUSH_BOOL(ret)
+END_IMGUI_FUNC
 //    IMGUI_API bool          TreeNodeEx(const void* ptr_id, ImGuiTreeNodeFlags flags, const char* fmt, ...) IM_FMTARGS(3);
 // Unsupported arg type const void* ptr_id
-// Unsupported arg type  ...) IM_FMTARGS(3
+// Variadic functions aren't suppported but here it is anyway
 //    IMGUI_API bool          TreeNodeExV(const char* str_id, ImGuiTreeNodeFlags flags, const char* fmt, va_list args) IM_FMTLIST(3);
 // Unsupported arg type  va_list args) IM_FMTLIST(3
 //    IMGUI_API bool          TreeNodeExV(const void* ptr_id, ImGuiTreeNodeFlags flags, const char* fmt, va_list args) IM_FMTLIST(3);
@@ -1404,7 +1444,11 @@ CALL_FUNCTION_NO_RET(EndTooltip)
 POP_END_STACK(10)
 END_IMGUI_FUNC
 //    IMGUI_API void          SetTooltip(const char* fmt, ...) IM_FMTARGS(1);                     // set a text-only tooltip, typically use with ImGui::IsItemHovered(). override any previous call to SetTooltip().
-// Unsupported arg type  ...) IM_FMTARGS(1
+// Variadic functions aren't suppported but here it is anyway
+IMGUI_FUNCTION(SetTooltip)
+LABEL_ARG(fmt)
+CALL_FUNCTION_NO_RET(SetTooltip, fmt)
+END_IMGUI_FUNC
 //    IMGUI_API void          SetTooltipV(const char* fmt, va_list args) IM_FMTLIST(1);
 // Unsupported arg type  va_list args) IM_FMTLIST(1
 //    IMGUI_API bool          BeginPopup(const char* str_id, ImGuiWindowFlags flags = 0);                         // return true if the popup is open, and you can start outputting to it.
@@ -1556,7 +1600,11 @@ IMGUI_FUNCTION(LogButtons)
 CALL_FUNCTION_NO_RET(LogButtons)
 END_IMGUI_FUNC
 //    IMGUI_API void          LogText(const char* fmt, ...) IM_FMTARGS(1);                        // pass text data straight to log (without being displayed)
-// Unsupported arg type  ...) IM_FMTARGS(1
+// Variadic functions aren't suppported but here it is anyway
+IMGUI_FUNCTION(LogText)
+LABEL_ARG(fmt)
+CALL_FUNCTION_NO_RET(LogText, fmt)
+END_IMGUI_FUNC
 //    IMGUI_API bool          BeginDragDropSource(ImGuiDragDropFlags flags = 0);                                      // call when the current item is active. If this return true, you can call SetDragDropPayload() + EndDragDropSource()
 // Unsupported arg type ImGuiDragDropFlags flags = 0
 //    IMGUI_API bool          SetDragDropPayload(const char* type, const void* data, size_t sz, ImGuiCond cond = 0);  // type is a user defined string of maximum 32 characters. Strings starting with '_' are reserved for dear imgui internal types. Data is copied and held by imgui.
